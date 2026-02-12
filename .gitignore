@@ -1,0 +1,12 @@
+node_modules
+dist
+.env
+*.env
+*.tar.gz
+.DS_Store
+.kiro
+deploy.sh
+.kiro
+.deploy.sh
+.vscode
+.docker-compose.yml

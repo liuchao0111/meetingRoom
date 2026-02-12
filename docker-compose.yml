@@ -1,0 +1,74 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: meeting-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_DATABASE: meeting_room_booking
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: meeting-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build: ./meeting_room_booking_system_backend
+    container_name: meeting-backend
+    restart: always
+    expose:
+      - "3000"
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=root123456
+      - DB_DATABASE=meeting_room_booking
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  frontend:
+    build: ./metting_room_booking_system_frotend
+    container_name: meeting-frontend
+    restart: always
+    expose:
+      - "80"
+    depends_on:
+      - backend
+
+  admin:
+    build: ./meeting_room_booking_system_admin
+    container_name: meeting-admin
+    restart: always
+    expose:
+      - "80"
+    depends_on:
+      - backend
+
+  nginx:
+    build: ./nginx
+    container_name: meeting-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - admin
+
+volumes:
+  mysql_data:
+  redis_data:

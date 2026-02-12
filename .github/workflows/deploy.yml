@@ -1,0 +1,65 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          cat > meeting_room_booking_system_backend/.env << EOF
+          redis_server_host=redis
+          redis_server_port=6379
+          redis_server_db=0
+          nodemailer_host=${{ secrets.NODEMAILER_HOST }}
+          nodemailer_port=${{ secrets.NODEMAILER_PORT }}
+          nodemailer_auth_user=${{ secrets.NODEMAILER_USER }}
+          nodemailer_auth_pass=${{ secrets.NODEMAILER_PASS }}
+          mysql_server_host=mysql
+          mysql_server_port=3306
+          mysql_server_username=root
+          mysql_server_password=${{ secrets.MYSQL_PASSWORD }}
+          mysql_server_database=meeting_room_booking
+          nest_server_port=3000
+          jwt_secret=${{ secrets.JWT_SECRET }}
+          jwt_access_token_expires_time=30m
+          jwt_refresh_token_expres_time=7d
+          EOF
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/meeting-room
+            rm -rf *
+            
+      - name: Copy files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "/root/meeting-room"
+          strip_components: 0
+
+      - name: Build and restart
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/meeting-room
+            docker compose down
+            docker compose up -d --build
