@@ -7,6 +7,5 @@ dist
 .kiro
 deploy.sh
 .kiro
-.deploy.sh
 .vscode
 .docker-compose.yml
