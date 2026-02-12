@@ -4,7 +4,7 @@ services:
     container_name: meeting-mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root123456
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
       MYSQL_DATABASE: meeting_room_booking
     ports:
       - "3306:3306"
@@ -29,14 +29,6 @@ services:
     depends_on:
       - mysql
       - redis
-    environment:
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_USERNAME=root
-      - DB_PASSWORD=root123456
-      - DB_DATABASE=meeting_room_booking
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
 
   frontend:
     build: ./metting_room_booking_system_frotend
