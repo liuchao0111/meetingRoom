@@ -58,9 +58,12 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 30m
           script: |
             cd /root/meeting-room
-            ls -la
-            ls -la meeting_room_booking_system_backend/
             docker compose down
-            docker compose up -d --build
+            docker compose build backend
+            docker compose build frontend
+            docker compose build admin
+            docker compose build nginx
+            docker compose up -d
