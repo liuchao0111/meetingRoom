@@ -5,7 +5,5 @@ dist
 *.tar.gz
 .DS_Store
 .kiro
-deploy.sh
-.kiro
 .vscode
 .docker-compose.yml
